@@ -1,10 +1,9 @@
-# ComfyUI-BasicOllama
+# ComfyUI-BasicOllama LLM Coded
 
-A streamlined and simplified custom node for ComfyUI that provides direct access to local Ollama models. This node allows you to send prompts and images to your local Ollama instance and receive text-based responses.
+A simplified node for ComfyUI that provides access to local Ollama models. This node allows you to send prompts and images to your local Ollama instance and receive text-based responses.
 
-This project is a heavily modified and stripped-down version of the original [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComfyUI-OllamaGemini) by [@al-swaiti](https://github.com/al-swaiti). All credit for the original concept and implementation goes to them.
+This project is a stripped-down version of the original Ollama node from [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComfyUI-OllamaGemini) by [@al-swaiti](https://github.com/al-swaiti). All credit for the original implementation goes to them.
 
-This simplified version can be found at [https://github.com/BobRandomNumber/ComfyUI-BasicOllama](https://github.com/BobRandomNumber/ComfyUI-BasicOllama).
 
 ## 🚀 Features
 
