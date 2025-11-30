@@ -20,7 +20,7 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 ## 📦 Installation
 
 1. **Clone the Repository:**
-   Navigate to your `ComfyUI/custom\_nodes` directory and clone this repository:
+   Navigate to your `ComfyUI/custom_nodes` directory and clone this repository:
 
 &nbsp;   ```bash
     git clone https://github.com/BobRandomNumber/ComfyUI-BasicOllama
