@@ -1,8 +1,8 @@
 # ComfyUI-BasicOllama
 
-A simplified node for ComfyUI that provides access to local Ollama models. This node allows you to send prompts, system prompts, and images to your local Ollama instance and receive text-based responses.
+A simplified node that provides access to Ollama. It allows you to send prompts, system prompts, and images to your Ollama instance and receive text-based responses.
 
-This project is a stripped-down version of the original Ollama node from [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComfyUI-OllamaGemini) by [@al-swaiti](https://github.com/al-swaiti). All credit for the original implementation goes to them.
+This project is a reworked version of the original Ollama node from [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComfyUI-OllamaGemini) by [@al-swaiti](https://github.com/al-swaiti). All credit for the original implementation goes to them.
 
 ## ⚠️ Requirements
 
@@ -62,7 +62,7 @@ The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI m
 
 By default, the `BasicOllama` node will attempt to connect to your Ollama instance at `http://localhost:11434`.
 
-If your Ollama instance is running on a different URL, you can change it by editing the `config.json` file located in the `ComfyUI-BasicOllama` directory:
+If your Ollama instance is running on a different URL/port, you can change it by editing the `config.json` file located in the `ComfyUI-BasicOllama` directory:
 
 ```json
 {
