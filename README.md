@@ -6,8 +6,6 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 
 **You must have Ollama installed and running on your local machine for this node to function.** You can download it from [https://ollama.com/](https://ollama.com/).
 
-![](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.png)
-
 ## 🚀 Features
 
 * **Direct Ollama Integration:** Seamlessly connect to your local Ollama instance.
@@ -17,31 +15,32 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 * **Multiple Image Inputs:** Input up to five images for analysis.
 * **Easy Configuration:** Quickly set up your Ollama URL via a `config.json` file.
 
+![](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.png)
+
 ## 📦 Installation
 
 1. **Clone the Repository:**
    Navigate to your `ComfyUI/custom_nodes` directory and clone this repository:
-
-&nbsp;   ```
+&nbsp;
+```bash
     git clone https://github.com/BobRandomNumber/ComfyUI-BasicOllama.git
-    ```
+```
 
 2. **Install Dependencies:**
    Navigate to the newly cloned directory and install the required packages:
-
-&nbsp;   ```
+&nbsp;
+```bash
     cd ComfyUI-BasicOllama
-    ```
-    
-&nbsp;  ```
+```
+```bash
     pip install -r requirements.txt
-    ```
+```
 
-3. Restart your ComfyUI instance to load the new custom node.
+3. **Restart your ComfyUI instance to load the new custom node.**
 
 ## ✨ Usage
 
-The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI menu. Simply connect an image to one of the `image` inputs to have it automatically included in your prompt.
+The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI menu. Connect optional image/s to the `image` inputs to have it automatically included in your prompt if desired.
 
 ### Inputs
 
