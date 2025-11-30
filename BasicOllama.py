@@ -60,12 +60,21 @@ def get_ollama_url():
         with open(config_path, 'r') as f:
             config = json.load(f)
         ollama_url = config.get("OLLAMA_URL", "http://localhost:11434")
-    except:
-        print("Error: Ollama URL not found, using default")
+    except FileNotFoundError:
+        print("Error: config.json not found, using default Ollama URL.")
+        ollama_url = "http://localhost:11434"
+    except json.JSONDecodeError:
+        print("Error: Could not decode config.json, using default Ollama URL.")
+        ollama_url = "http://localhost:11434"
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}, using default Ollama URL.")
         ollama_url = "http://localhost:11434"
     return ollama_url
 
 class BasicOllama:
+    _connection_error_printed = False
+    _success_message_printed = False
+
     def __init__(self):
         self.ollama_url = get_ollama_url()
 
@@ -74,13 +83,21 @@ class BasicOllama:
         ollama_url = get_ollama_url()
         try:
             response = requests.get(f"{ollama_url}/api/tags")
-            if response.status_code == 200:
-                models = response.json().get('models', [])
-                return [model['name'] for model in models]
-            return ["llama2"]
-        except Exception as e:
-            print(f"Error fetching Ollama models: {str(e)}")
-            return ["llama2"]
+            response.raise_for_status()
+            models = response.json().get('models', [])
+            
+            if not cls._success_message_printed:
+                print("Ollama available.")
+                cls._success_message_printed = True
+            
+            cls._connection_error_printed = False # Reset on success
+            return [model['name'] for model in models]
+        except requests.exceptions.RequestException:
+            cls._success_message_printed = False # Reset on failure
+            if not cls._connection_error_printed:
+                print("Failed connection to Ollama.")
+                cls._connection_error_printed = True
+            return []
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -92,7 +109,6 @@ class BasicOllama:
         return {
             "required": {
                 "prompt": ("STRING", {"default": "", "multiline": True}),
-                "input_type": ([ "text", "image"], {"default": "text"}),
                 "ollama_model": (cls.get_ollama_models(),),
                 "keep_alive": ("INT", {"default": 0, "min": 0, "max": 60, "step": 1}),
                 "saved_sys_prompt": (prompt_structures,),
@@ -113,14 +129,17 @@ class BasicOllama:
     FUNCTION = "generate_content"
     CATEGORY = "Ollama"
 
-    def generate_content(self, prompt, input_type, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, image1=None, image2=None, image3=None, image4=None, image5=None):
+    def generate_content(self, prompt, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, image1=None, image2=None, image3=None, image4=None, image5=None):
+        if not ollama_model:
+            return ("Ollama models not found. Is Ollama running?",)
+
         url = f"{self.ollama_url}/api/generate"
 
         system_prompt_content = ""
         if use_sys_prompt_below:
             system_prompt_content = system_prompt
+            print("Applying user provided system prompt")
         else:
-            # Dynamically load templates and apply the selected one
             prompt_templates = get_prompt_files()
             if saved_sys_prompt in prompt_templates:
                 system_prompt_content = prompt_templates[saved_sys_prompt]
@@ -128,32 +147,23 @@ class BasicOllama:
 
         payload = {
             "model": ollama_model,
+            "prompt": prompt,
+            "stream": False,
+            "keep_alive": f"{keep_alive}m",
         }
 
         if system_prompt_content:
             payload["system"] = system_prompt_content
         
-        payload.update({
-            "prompt": prompt,
-            "stream": False,
-            "keep_alive": f"{keep_alive}m"
-        })
+        all_images = [image1, image2, image3, image4, image5]
+        provided_images = [img for img in all_images if img is not None]
+
+        if provided_images:
+            print(f"Processing {len(provided_images)} image(s) for Ollama API")
+            image_data = [tensor_to_base64(img) for img in provided_images]
+            payload["images"] = image_data
 
         try:
-            if input_type == "image":
-                all_images = [image1, image2, image3, image4, image5]
-                provided_images = [img for img in all_images if img is not None]
-
-                if provided_images:
-                    print(f"Processing {len(provided_images)} image(s) for Ollama API")
-                    image_data = []
-                    for img in provided_images:
-                        base64_image = tensor_to_base64(img)
-                        image_data.append(base64_image)
-
-                    payload["images"] = image_data
-                    payload["prompt"] = f"Analyze these image(s): {prompt}"
-
             response = requests.post(url, json=payload)
             response.raise_for_status()
 
@@ -182,8 +192,17 @@ class BasicOllama:
                 textoutput = clean_text
 
             return (textoutput,)
+        except requests.exceptions.RequestException as e:
+            error_message = f"API Error: {e}"
+            if e.response:
+                error_message += f"\nStatus Code: {e.response.status_code}"
+                try:
+                    error_message += f"\nResponse: {e.response.json()}"
+                except json.JSONDecodeError:
+                    error_message += f"\nResponse: {e.response.text}"
+            return (error_message,)
         except Exception as e:
-            return (f"API Error: {str(e)}",)
+            return (f"An unexpected error occurred: {e}",)
 
 NODE_CLASS_MAPPINGS = {
     "BasicOllama": BasicOllama,
