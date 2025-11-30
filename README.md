@@ -2,11 +2,11 @@
 
 A simplified node that provides access to Ollama. It allows you to send prompts, system prompts, and images to your Ollama instance and receive text-based responses.
 
-This project is a reworked version of the original Ollama node from [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComfyUI-OllamaGemini) by [@al-swaiti](https://github.com/al-swaiti). All credit for the original implementation goes to them.
-
 ## ⚠️ Requirements
 
 **You must have Ollama installed and running on your local machine for this node to function.** You can download it from [https://ollama.com/](https://ollama.com/).
+
+![](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.png)
 
 ## 🚀 Features
 
