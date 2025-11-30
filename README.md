@@ -6,7 +6,7 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 
 **You must have Ollama installed and running on your local machine for this node to function.** You can download it from [https://ollama.com/](https://ollama.com/).
 
-!\[](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.jpg)
+!\[](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.png)
 
 ## 🚀 Features
 
