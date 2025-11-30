@@ -11,7 +11,7 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 ## 🚀 Features
 
 * **Direct Ollama Integration:** Seamlessly connect to your local Ollama instance.
-* **Automatic Image Detection:** The node automatically detects if an image is connected and sends it to Ollama for multimodal analysis, simplifying the workflow.
+* **Automatic Image Detection:** The node automatically detects if an image is connected and sends it to Ollama for multimodal analysis.
 * **System Prompt Support:** Utilize the `system` parameter in the Ollama API for more control over model behavior.
 * **Dynamic Prompt Templates:** Easily load your own system prompts from `.txt` files in the `prompts` directory.
 * **Multiple Image Inputs:** Input up to five images for analysis.
@@ -22,20 +22,22 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 1. **Clone the Repository:**
    Navigate to your `ComfyUI/custom_nodes` directory and clone this repository:
 
-&nbsp;   ```bash
-    git clone https://github.com/BobRandomNumber/ComfyUI-BasicOllama
+&nbsp;   ```
+    git clone https://github.com/BobRandomNumber/ComfyUI-BasicOllama.git
     ```
 
 2. **Install Dependencies:**
    Navigate to the newly cloned directory and install the required packages:
 
-&nbsp;   ```bash
+&nbsp;   ```
     cd ComfyUI-BasicOllama
+    ```
+    
+&nbsp;  ```
     pip install -r requirements.txt
     ```
 
-3. **Restart ComfyUI:**
-   Restart your ComfyUI instance to load the new custom node.
+3. Restart your ComfyUI instance to load the new custom node.
 
 ## ✨ Usage
 
@@ -46,11 +48,11 @@ The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI m
 | Name                   | Type      | Description                                                                                                                                                             |
 | ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prompt`               | `STRING`  | The main text prompt to send to the Ollama model.                                                                                                                       |
-| `ollama\_model`         | `COMBO`   | A list of available Ollama models on your local instance.                                                                                                               |
-| `keep\_alive`           | `INT`     | The duration (in minutes) that the Ollama model should remain loaded in memory after the request is complete.                                                           |
-| `saved\_sys\_prompt`     | `COMBO`   | A dropdown list of saved system prompts from the `.txt` files in the `prompts` directory. This is used as the system prompt by default.                                 |
-| `use\_sys\_prompt\_below` | `BOOLEAN` | If checked (`True`), the `system\_prompt` text box below will be used instead of the dropdown selection. If unchecked (`False`), the `saved\_sys\_prompt` dropdown is used. |
-| `system\_prompt`        | `STRING`  | A multiline text box for a custom, one-off system prompt. This is only active when `use\_sys\_prompt\_below` is checked.                                                     |
+| `ollama_model`         | `COMBO`   | A list of available Ollama models on your local instance.                                                                                                               |
+| `keep_alive`           | `INT`     | The duration (in minutes) that the Ollama model should remain loaded in memory after the request is complete.                                                           |
+| `saved_sys_prompt`     | `COMBO`   | A dropdown list of saved system prompts from the `.txt` files in the `prompts` directory. This is used as the system prompt by default.                                 |
+| `use_sys_prompt_below` | `BOOLEAN` | If checked (`True`), the `system_prompt` text box below will be used instead of the dropdown selection. If unchecked (`False`), the `saved_sys_prompt` dropdown is used. |
+| `system_prompt`        | `STRING`  | A multiline text box for a custom, one-off system prompt. This is only active when `use_sys_prompt_below` is checked.                                                     |
 | `image1` - `image5`    | `IMAGE`   | Up to five optional image inputs for multimodal models. The node will automatically detect and process any connected images.                                            |
 
 ### Outputs
@@ -61,10 +63,10 @@ The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI m
 
 ## ✍️ Adding Custom System Prompts
 
-You can easily add your own reusable system prompts to the `saved\_sys\_prompt` dropdown menu.
+You can easily add your own reusable system prompts to the `saved_sys_prompt` dropdown menu.
 
 1. Navigate to the `ComfyUI-BasicOllama/prompts` directory.
-2. Create a new text file (e.g., `my\_prompt.txt`).
+2. Create a new text file (e.g., `my_prompt.txt`).
 3. Write your system prompt inside this file. For example, if you want a system prompt for generating JSON, the content of the file could be:
 
 &nbsp;   ```
@@ -74,7 +76,7 @@ You can easily add your own reusable system prompts to the `saved\_sys\_prompt` 
 4. Save the file.
 5. Refresh your ComfyUI browser window.
 
-The name of your file (without the `.txt` extension) will now appear as an option in the `saved\_sys\_prompt` dropdown. In the example above, you would see `my\_prompt` in the list.
+The name of your file (without the `.txt` extension) will now appear as an option in the `saved_sys_prompt` dropdown. In the example above, you would see `my_prompt` in the list.
 
 ## ⚙️ Configuration
 
@@ -84,7 +86,7 @@ If your Ollama instance is running on a different URL/port, you can change it by
 
 ```json
 {
-  "OLLAMA\_URL": "http://your-ollama-url:11434"
+  "OLLAMA_URL": "http://your-ollama-url:11434"
 }
 ```
 
