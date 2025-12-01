@@ -87,7 +87,7 @@ class BasicOllama:
             models = response.json().get('models', [])
             
             if not cls._success_message_printed:
-                print("Ollama available.")
+                print("✔ SUCCESS Oh🦙 API is listening.")
                 cls._success_message_printed = True
             
             cls._connection_error_printed = False # Reset on success
@@ -95,7 +95,7 @@ class BasicOllama:
         except requests.exceptions.RequestException:
             cls._success_message_printed = False # Reset on failure
             if not cls._connection_error_printed:
-                print("Failed connection to Ollama.")
+                print("⚠ FAILED Could not connect to Oh🦙.")
                 cls._connection_error_printed = True
             return []
 
