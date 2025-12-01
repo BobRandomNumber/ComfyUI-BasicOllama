@@ -12,7 +12,7 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 * **Automatic Image Detection:** The node automatically detects if an image is connected and sends it to Ollama for multimodal analysis.
 * **System Prompt Support:** Utilize the `system` parameter in the Ollama API for more control over model behavior.
 * **Dynamic Prompt Templates:** Easily load your own system prompts from `.txt` files in the `prompts` directory.
-* **Multiple Image Inputs:** Input up to five images for analysis.
+* **Dynamic Image Inputs:** Start with one image input, and automatically add more as you connect them.
 * **Easy Configuration:** Quickly set up your Ollama URL via a `config.json` file.
 
 ![](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.png)
@@ -52,7 +52,7 @@ The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI m
 | `saved_sys_prompt`     | `COMBO`   | A dropdown list of saved system prompts from the `.txt` files in the `prompts` directory. This is used as the system prompt by default.                                 |
 | `use_sys_prompt_below` | `BOOLEAN` | If checked (`True`), the `system_prompt` text box below will be used instead of the dropdown selection. If unchecked (`False`), the `saved_sys_prompt` dropdown is used. |
 | `system_prompt`        | `STRING`  | A multiline text box for a custom, one-off system prompt. This is only active when `use_sys_prompt_below` is checked.                                                     |
-| `image1` - `image5`    | `IMAGE`   | Up to five optional image inputs for multimodal models. The node will automatically detect and process any connected images.                                            |
+| `image`                | `IMAGE`   | An optional image input for multimodal models. The node starts with one image input, and connecting an image to it will create a new input, allowing for any number of images. |
 
 ### Outputs
 

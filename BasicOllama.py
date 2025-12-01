@@ -116,11 +116,6 @@ class BasicOllama:
                 "system_prompt": ("STRING", {"default": "", "multiline": True}),
             },
             "optional": {
-                "image1": ("IMAGE",),
-                "image2": ("IMAGE",),
-                "image3": ("IMAGE",),
-                "image4": ("IMAGE",),
-                "image5": ("IMAGE",),
             }
         }
 
@@ -129,7 +124,7 @@ class BasicOllama:
     FUNCTION = "generate_content"
     CATEGORY = "Ollama"
 
-    def generate_content(self, prompt, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, image1=None, image2=None, image3=None, image4=None, image5=None):
+    def generate_content(self, prompt, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, **kwargs):
         if not ollama_model:
             return ("Ollama models not found. Is Ollama running?",)
 
@@ -155,7 +150,7 @@ class BasicOllama:
         if system_prompt_content:
             payload["system"] = system_prompt_content
         
-        all_images = [image1, image2, image3, image4, image5]
+        all_images = [kwargs[key] for key in sorted(kwargs.keys()) if key.startswith('image')]
         provided_images = [img for img in all_images if img is not None]
 
         if provided_images:
