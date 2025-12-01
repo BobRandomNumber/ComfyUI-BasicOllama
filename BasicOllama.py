@@ -4,8 +4,99 @@ import requests
 import torch
 import base64
 import io
+import sys
 import numpy as np
 from PIL import Image
+import ctypes
+import platform
+
+def print_colored(color, text=""):
+    if platform.system() != 'Windows':
+        if color == "success":
+            print("✔ SUCCESS  Oh🦙 API is listening.")
+        elif color == "failed":
+            print("⚠ FAILED  Could not connect to Oh🦙.")
+        elif color == "info":
+            print(f"ℹ INFO: {text}")
+        return
+
+    # Define necessary structures
+    class COORD(ctypes.Structure):
+        _fields_ = [("X", ctypes.c_short), ("Y", ctypes.c_short)]
+
+    class SMALL_RECT(ctypes.Structure):
+        _fields_ = [("Left", ctypes.c_short), ("Top", ctypes.c_short),
+                    ("Right", ctypes.c_short), ("Bottom", ctypes.c_short)]
+
+    class CONSOLE_SCREEN_BUFFER_INFO(ctypes.Structure):
+        _fields_ = [("dwSize", COORD),
+                    ("dwCursorPosition", COORD),
+                    ("wAttributes", ctypes.c_ushort),
+                    ("srWindow", SMALL_RECT),
+                    ("dwMaximumWindowSize", COORD)]
+
+    # Constants for colors
+    FOREGROUND_WHITE = 0x0007
+    FOREGROUND_GREEN = 0x000A
+    FOREGROUND_RED = 0x000C
+    FOREGROUND_YELLOW = 0x000E
+    FOREGROUND_BRIGHT_GREEN = 0x0002 | 0x0008  # Green + Intensity
+    BACKGROUND_GREEN = 0x0020
+    BACKGROUND_RED = 0x0040
+    BACKGROUND_BLUE = 0x0010
+    BACKGROUND_PURPLE = BACKGROUND_RED | BACKGROUND_BLUE # Corrected definition
+
+    # Get handle to stdout
+    STD_OUTPUT_HANDLE = -11
+    handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+    
+    # Get original console attributes
+    csbi = CONSOLE_SCREEN_BUFFER_INFO()
+    if ctypes.windll.kernel32.GetConsoleScreenBufferInfo(handle, ctypes.byref(csbi)):
+        reset = csbi.wAttributes
+
+        # Set color
+        if color == "success":
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_GREEN | FOREGROUND_WHITE)
+            print(" ✔ SUCCESS ", end="")
+            sys.stdout.flush()
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, FOREGROUND_GREEN | (reset & 0xFFF0))
+            print(" Oh🦙 API is listening.")
+        elif color == "failed":
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_RED | FOREGROUND_WHITE)
+            print(" ⚠ FAILED ", end="")
+            sys.stdout.flush()
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, FOREGROUND_RED | (reset & 0xFFF0))
+            print(" Could not connect to Oh🦙.")
+        elif color == "info":
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_BLUE | FOREGROUND_YELLOW)
+            sys.stdout.write(f" ℹ INFO: {text} ")
+            sys.stdout.flush()
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, reset)
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            return # Prevent double reset
+        elif color == "image_info":
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_PURPLE | FOREGROUND_BRIGHT_GREEN)
+            sys.stdout.write(f" 🖼 IMAGE: {text} ")
+            sys.stdout.flush()
+            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, reset)
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            return # Prevent double reset
+
+        # Reset to original color
+        ctypes.windll.kernel32.SetConsoleTextAttribute(handle, reset)
+    else:
+        # Fallback to simple print if not in a real console
+        if color == "success":
+            print("✔ SUCCESS Oh🦙 API is listening.")
+        elif color == "failed":
+            print("⚠ FAILED Could not connect to Oh🦙.")
+        elif color == "info":
+            print(f"ℹ INFO: {text}")
+        elif color == "image_info":
+            print(f"🖼 IMAGE: {text}")
 
 def get_prompt_files():
     """Scans the 'prompts' directory for .txt files and returns a dictionary."""
@@ -87,7 +178,7 @@ class BasicOllama:
             models = response.json().get('models', [])
             
             if not cls._success_message_printed:
-                print("✔ SUCCESS Oh🦙 API is listening.")
+                print_colored("success")
                 cls._success_message_printed = True
             
             cls._connection_error_printed = False # Reset on success
@@ -95,7 +186,7 @@ class BasicOllama:
         except requests.exceptions.RequestException:
             cls._success_message_printed = False # Reset on failure
             if not cls._connection_error_printed:
-                print("⚠ FAILED Could not connect to Oh🦙.")
+                print_colored("failed")
                 cls._connection_error_printed = True
             return []
 
@@ -125,20 +216,17 @@ class BasicOllama:
     CATEGORY = "Ollama"
 
     def generate_content(self, prompt, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, **kwargs):
-        if not ollama_model:
-            return ("Ollama models not found. Is Ollama running?",)
-
         url = f"{self.ollama_url}/api/generate"
 
         system_prompt_content = ""
         if use_sys_prompt_below:
             system_prompt_content = system_prompt
-            print("Applying user provided system prompt")
+            print_colored("info", "Applying User provided system prompt")
         else:
             prompt_templates = get_prompt_files()
             if saved_sys_prompt in prompt_templates:
                 system_prompt_content = prompt_templates[saved_sys_prompt]
-                print(f"Applying {saved_sys_prompt} system prompt")
+                print_colored("info", f"Applying {saved_sys_prompt} system prompt")
 
         payload = {
             "model": ollama_model,
@@ -154,7 +242,7 @@ class BasicOllama:
         provided_images = [img for img in all_images if img is not None]
 
         if provided_images:
-            print(f"Processing {len(provided_images)} image(s) for Ollama API")
+            print_colored("image_info", f"Processing {len(provided_images)} image(s) for Ollama API")
             image_data = [tensor_to_base64(img) for img in provided_images]
             payload["images"] = image_data
 
@@ -166,18 +254,22 @@ class BasicOllama:
 
             if textoutput.strip():
                 clean_text = textoutput.strip()
+                # Remove triple backticks (```) that might wrap the output, often seen in code blocks from LLMs
                 if clean_text.startswith("```") and "```" in clean_text[3:]:
                     first_block_end = clean_text.find("```", 3)
                     if first_block_end > 3:
+                        # Attempt to remove language identifier if present (e.g., ```json)
                         language_line_end = clean_text.find("\n", 3)
                         if language_line_end > 3 and language_line_end < first_block_end:
                             clean_text = clean_text[language_line_end+1:first_block_end].strip()
                         else:
                             clean_text = clean_text[3:first_block_end].strip()
 
+                # Remove surrounding quotes if the entire output is quoted (e.g., "generated text")
                 if (clean_text.startswith('"') and clean_text.endswith('"')) or (clean_text.startswith("'") and clean_text.endswith("'")):
                     clean_text = clean_text[1:-1].strip()
 
+                # Remove common prefixes that LLMs might add (e.g., "Prompt:", "Final Prompt:")
                 prefixes_to_remove = ["Prompt:", "PROMPT:", "Generated Prompt:", "Final Prompt:"]
                 for prefix in prefixes_to_remove:
                     if clean_text.startswith(prefix):
