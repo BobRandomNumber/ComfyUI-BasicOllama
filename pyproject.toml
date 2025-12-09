@@ -1,0 +1,13 @@
+[project]
+name = "basicollama"
+description = "Basic Ollama LLM interface for ComfyUI."
+version = "0.1.0"
+license = {file = "LICENSE"}
+dependencies = ["requests"]
+
+[project.urls]
+Repository = "https://github.com/BobRandomNumber/ComfyUI-BasicOllama"
+
+[tool.comfy]
+PublisherId = "bobrandomnumber"
+DisplayName = "ComfyUI-BasicOllama"
