@@ -204,6 +204,11 @@ class BasicOllama:
             }
         }
 
+    @classmethod
+    def VALIDATE_INPUTS(cls, **kwargs):
+        # We allow any value for ollama_model since it is populated dynamically on the frontend
+        return True
+
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("text",)
     FUNCTION = "generate_content"
