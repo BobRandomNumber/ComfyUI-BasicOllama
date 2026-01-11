@@ -9,6 +9,8 @@ import numpy as np
 from PIL import Image
 import ctypes
 import platform
+from server import PromptServer
+from aiohttp import web
 
 def print_colored(color, text=""):
     if platform.system() != 'Windows':
@@ -162,33 +164,25 @@ def get_ollama_url():
         ollama_url = "http://localhost:11434"
     return ollama_url
 
-class BasicOllama:
-    _connection_error_printed = False
-    _success_message_printed = False
+def fetch_ollama_models():
+    ollama_url = get_ollama_url()
+    try:
+        # Shortened timeout for the fastest possible check
+        response = requests.get(f"{ollama_url}/api/tags", timeout=1)
+        response.raise_for_status()
+        models = response.json().get('models', [])
+        return [model['name'] for model in models]
+    except Exception:
+        return ["Start Ollama and Refresh"]
 
+@PromptServer.instance.routes.get("/basic_ollama/models")
+async def get_ollama_models_endpoint(request):
+    models = fetch_ollama_models()
+    return web.json_response(models)
+
+class BasicOllama:
     def __init__(self):
         self.ollama_url = get_ollama_url()
-
-    @classmethod
-    def get_ollama_models(cls):
-        ollama_url = get_ollama_url()
-        try:
-            response = requests.get(f"{ollama_url}/api/tags")
-            response.raise_for_status()
-            models = response.json().get('models', [])
-            
-            if not cls._success_message_printed:
-                print_colored("success")
-                cls._success_message_printed = True
-            
-            cls._connection_error_printed = False # Reset on success
-            return [model['name'] for model in models]
-        except requests.exceptions.RequestException:
-            cls._success_message_printed = False # Reset on failure
-            if not cls._connection_error_printed:
-                print_colored("failed")
-                cls._connection_error_printed = True
-            return []
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -200,7 +194,7 @@ class BasicOllama:
         return {
             "required": {
                 "prompt": ("STRING", {"default": "", "multiline": True}),
-                "ollama_model": (cls.get_ollama_models(),),
+                "ollama_model": (["Loading..."],),
                 "keep_alive": ("INT", {"default": 0, "min": 0, "max": 60, "step": 1}),
                 "saved_sys_prompt": (prompt_structures,),
                 "use_sys_prompt_below": ("BOOLEAN", {"default": False}),

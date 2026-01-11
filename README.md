@@ -8,7 +8,9 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 
 ## 🚀 Features
 
+* **Zero Startup Impact:** This node loads asynchronously and will not slow down your ComfyUI browser loading time.
 * **Direct Ollama Integration:** Seamlessly connect to your local Ollama instance.
+* **Visual Connection Status:** The node will turn **dark red** if it cannot connect to Ollama, providing visual feedback.
 * **Automatic Image Detection:** The node automatically detects if an image is connected and sends it to Ollama for multimodal analysis.
 * **System Prompt Support:** Utilize the `system` parameter in the Ollama API for more control over model behavior.
 * **Dynamic Prompt Templates:** Easily load your own system prompts from `.txt` files in the `prompts` directory.
@@ -42,12 +44,16 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 
 The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI menu. Connect optional image/s to the `image` inputs to have it automatically included in your prompt if desired.
 
+### Visual Alerts
+
+If Ollama is not running when the node is loaded, the node will turn **dark red** and the model selection will show **"Start Ollama and Refresh"**. Simply start Ollama and refresh your browser to restore functionality.
+
 ### Inputs
 
 | Name                   | Type      | Description                                                                                                                                                             |
 | ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prompt`               | `STRING`  | The main text prompt to send to the Ollama model.                                                                                                                       |
-| `ollama_model`         | `COMBO`   | A list of available Ollama models on your local instance.                                                                                                               |
+| `ollama_model`         | `COMBO`   | Asynchronously populated list of available Ollama models. If the connection fails, it will show an alert message.                                                       |
 | `keep_alive`           | `INT`     | The duration (in minutes) that the Ollama model should remain loaded in memory after the request is complete.                                                           |
 | `saved_sys_prompt`     | `COMBO`   | A dropdown list of saved system prompts from the `.txt` files in the `prompts` directory. This is used as the system prompt by default.                                 |
 | `use_sys_prompt_below` | `BOOLEAN` | If checked (`True`), the `system_prompt` text box below will be used instead of the dropdown selection. If unchecked (`False`), the `saved_sys_prompt` dropdown is used. |
