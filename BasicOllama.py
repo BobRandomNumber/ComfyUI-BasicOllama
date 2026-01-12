@@ -7,98 +7,14 @@ import io
 import sys
 import numpy as np
 from PIL import Image
-import ctypes
 import platform
-from server import PromptServer
-from aiohttp import web
 
-def print_colored(color, text=""):
-    if platform.system() != 'Windows':
-        if color == "success":
-            print("✔ SUCCESS  Oh🦙 API is listening.")
-        elif color == "failed":
-            print("⚠ FAILED  Could not connect to Oh🦙.")
-        elif color == "info":
-            print(f"ℹ INFO: {text}")
-        return
-
-    # Define necessary structures
-    class COORD(ctypes.Structure):
-        _fields_ = [("X", ctypes.c_short), ("Y", ctypes.c_short)]
-
-    class SMALL_RECT(ctypes.Structure):
-        _fields_ = [("Left", ctypes.c_short), ("Top", ctypes.c_short),
-                    ("Right", ctypes.c_short), ("Bottom", ctypes.c_short)]
-
-    class CONSOLE_SCREEN_BUFFER_INFO(ctypes.Structure):
-        _fields_ = [("dwSize", COORD),
-                    ("dwCursorPosition", COORD),
-                    ("wAttributes", ctypes.c_ushort),
-                    ("srWindow", SMALL_RECT),
-                    ("dwMaximumWindowSize", COORD)]
-
-    # Constants for colors
-    FOREGROUND_WHITE = 0x0007
-    FOREGROUND_GREEN = 0x000A
-    FOREGROUND_RED = 0x000C
-    FOREGROUND_YELLOW = 0x000E
-    FOREGROUND_BRIGHT_GREEN = 0x0002 | 0x0008
-    BACKGROUND_GREEN = 0x0020
-    BACKGROUND_RED = 0x0040
-    BACKGROUND_BLUE = 0x0010
-    BACKGROUND_PURPLE = BACKGROUND_RED | BACKGROUND_BLUE
-
-    # Get handle to stdout
-    STD_OUTPUT_HANDLE = -11
-    handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
-    
-    # Get original console attributes
-    csbi = CONSOLE_SCREEN_BUFFER_INFO()
-    if ctypes.windll.kernel32.GetConsoleScreenBufferInfo(handle, ctypes.byref(csbi)):
-        reset = csbi.wAttributes
-
-        # Set color
-        if color == "success":
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_GREEN | FOREGROUND_WHITE)
-            print(" ✔ SUCCESS ", end="")
-            sys.stdout.flush()
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, FOREGROUND_GREEN | (reset & 0xFFF0))
-            print(" Oh🦙 API is listening.")
-        elif color == "failed":
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_RED | FOREGROUND_WHITE)
-            print(" ⚠ FAILED ", end="")
-            sys.stdout.flush()
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, FOREGROUND_RED | (reset & 0xFFF0))
-            print(" Could not connect to Oh🦙.")
-        elif color == "info":
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_BLUE | FOREGROUND_YELLOW)
-            sys.stdout.write(f" ℹ INFO: {text} ")
-            sys.stdout.flush()
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, reset)
-            sys.stdout.write("\n")
-            sys.stdout.flush()
-            return # Prevent double reset
-        elif color == "image_info":
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, BACKGROUND_PURPLE | FOREGROUND_BRIGHT_GREEN)
-            sys.stdout.write(f" 🖼 IMAGE: {text} ")
-            sys.stdout.flush()
-            ctypes.windll.kernel32.SetConsoleTextAttribute(handle, reset)
-            sys.stdout.write("\n")
-            sys.stdout.flush()
-            return # Prevent double reset
-
-        # Reset to original color
-        ctypes.windll.kernel32.SetConsoleTextAttribute(handle, reset)
-    else:
-        # Fallback to simple print if not in a real console
-        if color == "success":
-            print("✔ SUCCESS Oh🦙 API is listening.")
-        elif color == "failed":
-            print("⚠ FAILED Could not connect to Oh🦙.")
-        elif color == "info":
-            print(f"ℹ INFO: {text}")
-        elif color == "image_info":
-            print(f"🖼 IMAGE: {text}")
+try:
+    from server import PromptServer
+    from aiohttp import web
+except ImportError:
+    print("BasicOllama: Could not import server or aiohttp. API will not work.")
+    PromptServer = None
 
 def get_prompt_files():
     """Scans the 'prompts' directory for .txt files and returns a dictionary."""
@@ -175,10 +91,14 @@ def fetch_ollama_models():
     except Exception:
         return ["Start Ollama and Refresh"]
 
-@PromptServer.instance.routes.get("/basic_ollama/models")
-async def get_ollama_models_endpoint(request):
-    models = fetch_ollama_models()
-    return web.json_response(models)
+if PromptServer:
+    try:
+        @PromptServer.instance.routes.get("/basic_ollama/models")
+        async def get_ollama_models_endpoint(request):
+            models = fetch_ollama_models()
+            return web.json_response(models)
+    except Exception as e:
+        print(f"BasicOllama: Could not register API route: {e}")
 
 class BasicOllama:
     def __init__(self):
@@ -201,6 +121,9 @@ class BasicOllama:
                 "system_prompt": ("STRING", {"default": "", "multiline": True}),
             },
             "optional": {
+            },
+            "hidden": {
+                "unique_id": "UNIQUE_ID",
             }
         }
 
@@ -214,18 +137,18 @@ class BasicOllama:
     FUNCTION = "generate_content"
     CATEGORY = "Ollama"
 
-    def generate_content(self, prompt, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, **kwargs):
+    def generate_content(self, prompt, ollama_model, keep_alive, use_sys_prompt_below, saved_sys_prompt, system_prompt, unique_id=None, **kwargs):
         url = f"{self.ollama_url}/api/generate"
 
         system_prompt_content = ""
         if use_sys_prompt_below:
             system_prompt_content = system_prompt
-            print_colored("info", "Applying User provided system prompt")
+            print(f"BasicOllama: Applying User provided system prompt to {ollama_model}")
         else:
             prompt_templates = get_prompt_files()
             if saved_sys_prompt in prompt_templates:
                 system_prompt_content = prompt_templates[saved_sys_prompt]
-                print_colored("info", f"Applying {saved_sys_prompt} system prompt")
+                print(f"BasicOllama: Applying {saved_sys_prompt} system prompt to {ollama_model}")
 
         payload = {
             "model": ollama_model,
@@ -241,7 +164,7 @@ class BasicOllama:
         provided_images = [img for img in all_images if img is not None]
 
         if provided_images:
-            print_colored("image_info", f"Processing {len(provided_images)} image(s) for Ollama API")
+            print(f"BasicOllama: Processing {len(provided_images)} image(s) for Ollama API")
             image_data = [tensor_to_base64(img) for img in provided_images]
             payload["images"] = image_data
 
@@ -279,6 +202,12 @@ class BasicOllama:
 
             return (textoutput,)
         except requests.exceptions.RequestException as e:
+            # Handle connection errors and alert the frontend
+            if "WinError 10061" in str(e) or "Connection refused" in str(e):
+                if PromptServer and unique_id:
+                     PromptServer.instance.send_sync("basic_ollama_connection_error", {"node_id": unique_id})
+                return ("Error: Could not connect to Ollama. Please ensure it is running.",)
+            
             error_message = f"API Error: {e}"
             if e.response:
                 error_message += f"\nStatus Code: {e.response.status_code}"

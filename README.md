@@ -46,7 +46,11 @@ The `BasicOllama` node can be found under the `Ollama` category in the ComfyUI m
 
 ### Visual Alerts
 
-If Ollama is not running when the node is loaded, the node will turn **dark red** and the model selection will show **"Start Ollama and Refresh"**. Simply start Ollama and refresh your browser to restore functionality.
+The node provides visual feedback for connection issues:
+*   **Startup:** If Ollama is not running when the node is loaded, the node will turn **dark red** and the model selection will show **"Start Ollama and Refresh"**.
+*   **Runtime:** If the connection to Ollama is lost while generating a prompt, the node will also turn **dark red** to indicate the failure.
+
+Simply start Ollama and refresh your browser (or re-queue the prompt) to restore functionality.
 
 ### Inputs
 

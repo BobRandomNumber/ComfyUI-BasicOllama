@@ -24,6 +24,20 @@ app.registerExtension({
             return
         }
 
+        // Add event listener for runtime connection errors
+        api.addEventListener("basic_ollama_connection_error", (event) => {
+            const nodeId = event.detail.node_id;
+            const node = app.graph.getNodeById(nodeId);
+            if (node) {
+                 const errorColor = "#550000";
+                 if (node.bgcolor !== errorColor) {
+                      node._original_bgcolor = node.bgcolor;
+                      node.bgcolor = errorColor;
+                 }
+                 node.setDirtyCanvas(true);
+            }
+        });
+
         const onNodeCreated = nodeType.prototype.onNodeCreated;
         nodeType.prototype.onNodeCreated = async function () {
             const me = onNodeCreated?.apply(this);
