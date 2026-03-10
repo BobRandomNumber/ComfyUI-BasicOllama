@@ -1,6 +1,6 @@
 # ComfyUI-BasicOllama
 
-A simplified node that provides access to Ollama. It allows you to send prompts, system prompts, and images to your Ollama instance and receive text-based responses with support for reasoning/thinking traces.
+A simplified node that provides access to Ollama. It allows you to send prompts and images to your Ollama instance and receive text-based responses with support for reasoning/thinking and system prompts.
 
 ## ⚠️ Requirements
 
@@ -11,7 +11,7 @@ A simplified node that provides access to Ollama. It allows you to send prompts,
 * **Zero Startup Impact:** This node loads asynchronously and will not slow down your ComfyUI browser loading time.
 * **Direct Ollama Integration:** Seamlessly connect to your local Ollama instance.
 * **Automatic Image Detection:** The node automatically detects if an image is connected and sends it to Ollama for multimodal analysis.
-* **Reasoning Support:** Toggle "think" mode to capture reasoning traces from models like DeepSeek-R1.
+* **Reasoning Support:** Toggle "think" mode to capture reasoning traces.
 * **System Prompt Support:** Utilize the `system` parameter in the Ollama API for more control over model behavior.
 * **Dynamic Prompt Templates:** Easily load your own system prompts from `.txt` files in the `prompts` directory.
 * **Dynamic Image Inputs:** Start with one image input, and automatically add more as you connect them.
@@ -79,3 +79,4 @@ If your Ollama instance is running on a different URL/port, you can change it by
 
 A special thank you to [@al-swaiti](https://github.com/al-swaiti) for creating the original [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComllamaGemini) whose Ollama node served as the foundation and inspiration for this.
 This project is licensed under the [MIT License](LICENSE).
+
