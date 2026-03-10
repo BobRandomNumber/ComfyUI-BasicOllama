@@ -1,4 +1,5 @@
-from .BasicOllama import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from .BasicOllama import comfy_entrypoint
 
-WEB_DIRECTORY = "./web"
-__all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']
+WEB_DIRECTORY = "./js"
+
+__all__ = ['comfy_entrypoint', 'WEB_DIRECTORY']
