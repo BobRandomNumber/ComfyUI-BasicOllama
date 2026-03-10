@@ -16,6 +16,8 @@ A simplified node that provides access to Ollama. It allows you to send prompts 
 * **Dynamic Prompt Templates:** Easily load your own system prompts from `.txt` files in the `prompts` directory.
 * **Dynamic Image Inputs:** Start with one image input, and automatically add more as you connect them.
 * **Easy Configuration:** Quickly set up your Ollama URL via a `config.json` file.
+* 
+![](https://github.com/BobRandomNumber/ComfyUI-BasicOllama/blob/main/BasicOllama.png)
 
 ## 📦 Installation
 
@@ -79,4 +81,5 @@ If your Ollama instance is running on a different URL/port, you can change it by
 
 A special thank you to [@al-swaiti](https://github.com/al-swaiti) for creating the original [ComfyUI-OllamaGemini](https://github.com/al-swaiti/ComllamaGemini) whose Ollama node served as the foundation and inspiration for this.
 This project is licensed under the [MIT License](LICENSE).
+
 
